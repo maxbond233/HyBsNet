@@ -1,0 +1,56 @@
+analysis:
+  deg_padj_cutoff: 0.05
+  jaccard_cutoff: 0.10
+  community_method: louvain
+  community_weights: null
+  centrality_weights: null
+  core_cutoff: median
+
+layout:
+  method: fr
+  seed: 42
+  iterations: 500
+
+panels:
+  Obesity:
+    panel: A
+    labels:
+      - TH_OXT_30_PTGFR
+      - TH_EX_39_AVP_CAPRIN2
+      - TH_EX_12_CRH_RNPC3
+      - TH_OPC_1
+      - SH_EX_4_CBLN1
+      - SH_IN_11_HTR2C
+      - SH_IN_10_ESR1
+      - BS_AST_1
+      - BS_EPEN_1
+  Diabetes:
+    panel: B
+    labels:
+      - TH_MIC_1
+      - TH_MIC_2
+      - SH_IN_10_ESR1
+      - BS_AST_1
+      - SH_EPEN_1
+      - TH_EPEN_2
+      - BS_EPEN_1
+      - TH_EPEN_1
+      - TH_AST_1
+
+local_network:
+  panel: G
+  condition: Diabetes
+  center_node: SH_IN_10_ESR1
+  neighborhood_order: 1
+  label_top_n: 15
+
+output:
+  full_network_width_mm: 100
+  full_network_height_mm: 95
+  local_network_width_mm: 100
+  local_network_height_mm: 95
+  dpi: 300
+  formats:
+    - pdf
+    - png
+    - svg

@@ -1,0 +1,29 @@
+Package: HyBsNet
+Title: Reusable DEG Similarity Network Analysis and Visualization
+Version: 0.1.0.9000
+Authors@R: person("HyBs", "Analysis Team", email = "noreply@example.org", role = c("aut", "cre"))
+Description: Provides deterministic and reusable tools for building, analysing,
+    laying out, plotting, and exporting differential-expression similarity
+    networks. The package separates scientific parameters from visual styling
+    so that figure appearance can be revised without silently changing network
+    topology or statistical thresholds.
+License: MIT + file LICENSE
+URL: https://github.com/maxbond233/HyBsNet
+BugReports: https://github.com/maxbond233/HyBsNet/issues
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Depends:
+    R (>= 4.1.0)
+Imports:
+    digest,
+    ggplot2,
+    ggrepel,
+    igraph,
+    yaml
+Suggests:
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+VignetteBuilder: knitr

@@ -1,0 +1,47 @@
+---
+title: "Figure 3 网络分析与样式复用"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Figure 3 网络分析与样式复用}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+`HyBsNet` 把网络工作流拆成四步：准备 DEG、建立拓扑、计算或载入布局、
+绘图。颜色和字体只进入最后一步。
+
+```{r, eval=FALSE}
+library(HyBsNet)
+
+deg <- prepare_deg_sets(deg_table, condition = "Diabetes")
+edges <- calculate_pairwise_jaccard(deg, min_similarity = 0.10)
+network <- build_similarity_network(edges, deg, condition = "Diabetes")
+
+layout <- calculate_network_layout(network, seed = 42)
+save_network_layout(layout, "diabetes_layout.csv")
+
+p1 <- plot_similarity_network(network, layout, style = theme_fig3_current())
+p2 <- plot_similarity_network(network, layout, style = theme_fig3_colorblind())
+```
+
+由于 `p1` 和 `p2` 使用相同的 `layout`，两张图只改变外观，不改变节点、
+边或坐标。
+
+局部网络使用诱导子图：
+
+```{r, eval=FALSE}
+local <- extract_local_network(
+  network,
+  center_node = "SH_IN_10_ESR1",
+  order = 1,
+  label_top_n = 15
+)
+plot_local_network(local)
+```
+
+包函数默认不写文件。只有显式调用 `export_network_panel()` 或
+`export_network_source_data()` 时才会产生文件，而且默认拒绝覆盖已有文件。
