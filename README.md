@@ -76,6 +76,107 @@ new_style <- hybs_network_style(
 plot_similarity_network(network, layout = layout, style = new_style)
 ```
 
+## 冻结新版网络坐标
+
+手动调整或 community-first 布局应先转换成带拓扑签名的正式布局。之后
+绘制任意基因或通路时都复用这个对象：
+
+```r
+frozen_layout <- as_network_layout(
+  redesigned_nodes,
+  network,
+  x_col = "x_redesign",
+  y_col = "y_redesign",
+  layout_id = "log2fc_1p5_community_first_v1",
+  layout_method = "community_first_frozen"
+)
+
+save_network_layout(frozen_layout, "diabetes_frozen_layout.csv")
+```
+
+`load_network_layout()` 默认严格要求节点和拓扑一致。如果阈值变化导致
+节点替换，必须显式调用 `reconcile_network_layout()`；共同节点坐标保持不变，
+新增节点按已定位邻居加权锚定。
+
+## 叠加基因或通路结果
+
+```r
+gene_overlay <- prepare_gene_overlay(
+  mast_table,
+  gene = "HLA-E",
+  condition = "Diabetes"
+)
+
+plot_network_overlay(
+  network,
+  gene_overlay,
+  layout = frozen_layout,
+  size_by = "overlay"
+)
+
+pathway_overlay <- prepare_pathway_overlay(
+  gsea_table,
+  pathway = "HALLMARK_OXIDATIVE_PHOSPHORYLATION",
+  condition = "Diabetes"
+)
+
+plot_network_overlay(
+  network,
+  pathway_overlay,
+  layout = frozen_layout,
+  size_by = "deg_count"
+)
+```
+
+默认 gene overlay 的填色是 `avg_log2FC`，不是绝对表达量；大小默认是
+`pct.1`。GSEA 的 `NES` 表示疾病差异排序中的富集方向，也不应直接命名为
+单细胞 pathway activity。UCell、AUCell 或 GSVA 等分数可以通过
+`prepare_node_overlay()` 输入，并用准确的 `score_type` 标记。
+
+如果输入的是平均表达量或 pseudobulk 表达量，使用语义更明确的
+`prepare_expression_overlay()`：
+
+```r
+expression_overlay <- prepare_expression_overlay(
+  expression_table,
+  gene = "SST",
+  condition = "Diabetes",
+  value_col = "avg_expression",
+  size_col = "pct_expressing"
+)
+```
+
+## 提取并绘制子网络
+
+```r
+local <- extract_subnetwork(
+  network,
+  mode = "ego",
+  center_node = "SH_IN_10_ESR1",
+  order = 1,
+  edge_mode = "induced"
+)
+
+local_frozen <- calculate_subnetwork_layout(
+  local,
+  mode = "frozen",
+  parent_layout = frozen_layout
+)
+
+plot_subnetwork(local, local_frozen, overlay = gene_overlay)
+plot_subnetwork_context(network, frozen_layout, local, overlay = gene_overlay)
+```
+
+`extract_subnetwork()` 还支持 `nodes`、`pattern`、`community` 和 `group`
+查询。局部图可以复用全局冻结坐标，也可以通过 `mode = "compact"` 生成
+独立的紧凑布局；紧凑布局不会写回或改变全局坐标。
+
+完整、可在 RStudio 中 Source 的入口位于：
+
+```text
+inst/scripts/run_fixed_network_views.R
+```
+
 也可以直接修改安装包中的 YAML 模板副本，然后读取：
 
 ```r
@@ -106,4 +207,5 @@ testthat::test_package("HyBsNet")
 
 ```bash
 Rscript tools/validate_current_figure3.R /path/to/HyBs_Fig3
+Rscript tools/validate_network_views_v1.R /path/to/HyBs_Fig3
 ```

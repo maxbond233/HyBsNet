@@ -1,6 +1,6 @@
 Package: HyBsNet
 Title: Reusable DEG Similarity Network Analysis and Visualization
-Version: 0.1.0.9000
+Version: 0.2.0.9000
 Authors@R: person("HyBs", "Analysis Team", email = "noreply@example.org", role = c("aut", "cre"))
 Description: Provides deterministic and reusable tools for building, analysing,
     laying out, plotting, and exporting differential-expression similarity
@@ -20,6 +20,7 @@ Imports:
     ggplot2,
     ggrepel,
     igraph,
+    scales,
     yaml
 Suggests:
     knitr,

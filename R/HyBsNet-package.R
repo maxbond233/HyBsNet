@@ -9,5 +9,6 @@
 "_PACKAGE"
 
 utils::globalVariables(c(
-  "x", "y", "xend", "yend", "Similarity", "deg_count", "region", "label"
+  "x", "y", "xend", "yend", "Similarity", "deg_count", "region", "label",
+  "plot_size", "overlay_score", "overlay_outline", "name"
 ))

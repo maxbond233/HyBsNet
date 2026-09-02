@@ -11,6 +11,14 @@ scripts: scientific filtering, graph analysis, deterministic coordinates,
 and visual styling. The current Figure 3 defaults remain adjusted \code{P < 0.05},
 Jaccard \verb{> 0.10}, and random seed \code{42}.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/maxbond233/HyBsNet}
+  \item Report bugs at \url{https://github.com/maxbond233/HyBsNet/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: HyBs Analysis Team \email{noreply@example.org}
 

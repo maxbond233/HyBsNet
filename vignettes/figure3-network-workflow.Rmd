@@ -43,5 +43,65 @@ local <- extract_local_network(
 plot_local_network(local)
 ```
 
+## 固定布局上的节点信号
+
+新版 community-first 坐标可以从节点表导入并冻结：
+
+```{r, eval=FALSE}
+frozen_layout <- as_network_layout(
+  redesigned_nodes,
+  network,
+  x_col = "x_redesign",
+  y_col = "y_redesign",
+  layout_id = "community_first_v1"
+)
+
+gene_overlay <- prepare_gene_overlay(
+  mast_table,
+  gene = "HLA-E",
+  condition = "Diabetes"
+)
+
+plot_network_overlay(
+  network,
+  gene_overlay,
+  layout = frozen_layout,
+  size_by = "overlay"
+)
+```
+
+`avg_log2FC` 表示差异方向，不是绝对表达量。类似地，GSEA NES 表示基因
+排序中的富集方向；只有输入 UCell、AUCell、GSVA 等评分时才应把图例写成
+pathway activity。overlay 对象通过 `score_type` 保存这一解释。
+
+## 多种子网络查询
+
+```{r, eval=FALSE}
+subnetwork <- extract_subnetwork(
+  network,
+  mode = "ego",
+  center_node = "SH_IN_10_ESR1",
+  order = 1,
+  edge_mode = "induced"
+)
+
+subnetwork_layout <- calculate_subnetwork_layout(
+  subnetwork,
+  mode = "frozen",
+  parent_layout = frozen_layout
+)
+
+plot_subnetwork(subnetwork, subnetwork_layout, overlay = gene_overlay)
+plot_subnetwork_context(
+  network,
+  frozen_layout,
+  subnetwork,
+  overlay = gene_overlay
+)
+```
+
+查询模式还包括 `nodes`、`pattern`、`community` 和 `group`。`induced`
+保留所选节点之间的全部边；`incident` 只保留接触原始 seed 的边。
+
 包函数默认不写文件。只有显式调用 `export_network_panel()` 或
 `export_network_source_data()` 时才会产生文件，而且默认拒绝覆盖已有文件。
