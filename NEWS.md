@@ -12,6 +12,9 @@
   queries, with explicit induced versus seed-incident edge semantics.
 * Adds frozen-parent and compact subnetwork layouts, local plots, context plots,
   a Source-able example workflow, and real-data regression validation.
+* The Source-able example now accepts explicit DEG, edge, frozen-layout,
+  optional pathway, and output paths instead of inferring a HyBs project
+  directory structure.
 
 # HyBsNet 0.1.0.9000
 

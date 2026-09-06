@@ -177,6 +177,41 @@ plot_subnetwork_context(network, frozen_layout, local, overlay = gene_overlay)
 inst/scripts/run_fixed_network_views.R
 ```
 
+入口不依赖固定项目目录，只读取显式指定的文件：
+
+```r
+network_view_config <- list(
+  deg_file = "/path/to/MAST_deg_summary.csv",
+  edge_file = "/path/to/Fig3B_log2fc_1p5_edges.csv",
+  frozen_layout_file = "/path/to/diabetes_redesign_nodes.csv",
+  pathway_file = "/path/to/gsea_all_results.csv", # 不画通路时设为 NULL
+  output_dir = "/path/to/network_views_output",
+  condition = "Diabetes",
+  gene = "HLA-E",
+  pathway = "HALLMARK_OXIDATIVE_PHOSPHORYLATION",
+  subnetwork = list(
+    mode = "ego",
+    center_node = "SH_IN_10_ESR1",
+    order = 1L,
+    edge_mode = "induced"
+  ),
+  local_layout = "frozen",
+  padj_cutoff = 0.05,
+  abs_log2fc_cutoff = log2(1.5),
+  jaccard_cutoff = 0.10,
+  layout_id = "log2fc_1p5_community_first_v1",
+  layout_seed = 42L,
+  overwrite = FALSE
+)
+
+source(system.file(
+  "scripts", "run_fixed_network_views.R", package = "HyBsNet"
+))
+```
+
+必选输入只有 DEG 表、网络边表和冻结坐标表；通路结果表是可选输入。
+脚本不会根据 `project_root`、当前工作目录或预设子目录猜测文件位置。
+
 也可以直接修改安装包中的 YAML 模板副本，然后读取：
 
 ```r

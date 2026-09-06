@@ -2,64 +2,61 @@
 
 # HyBsNet v1 fixed-layout views.
 #
-# Edit this list and Source the complete file in RStudio. All major objects are
-# intentionally retained in the Global Environment for inspection.
-network_view_config <- list(
-  project_root = Sys.getenv("HYBS_FIG3_ROOT", unset = "/path/to/HyBs_Fig3"),
-  condition = "Diabetes",
-  panel = "Fig3B",
-  gene = "HLA-E",
-  pathway = "HALLMARK_OXIDATIVE_PHOSPHORYLATION",
-  subnetwork = list(
-    mode = "ego",
-    center_node = "SH_IN_10_ESR1",
-    order = 1L,
-    edge_mode = "induced"
-  ),
-  local_layout = "frozen", # or "compact"
-  padj_cutoff = 0.05,
-  abs_log2fc_cutoff = log2(1.5),
-  jaccard_cutoff = 0.10,
-  layout_id = "log2fc_1p5_community_first_v1",
-  layout_seed = 42L,
-  output_dir = {
-    value <- Sys.getenv("HYBS_NETWORK_VIEW_OUTPUT", unset = "")
-    if (nzchar(value)) value else NULL
-  },
-  overwrite = FALSE
-)
+# Edit this list and Source the complete file in RStudio. Only explicit input
+# files and one output directory are required; no project directory structure
+# is inferred. If `network_view_config` already exists in the Global
+# Environment, the script uses that object instead of this template. All major
+# analysis objects are intentionally retained for inspection.
+if (!exists("network_view_config", envir = .GlobalEnv, inherits = FALSE)) {
+  network_view_config <- list(
+    deg_file = "/path/to/MAST_deg_summary.csv",
+    edge_file = "/path/to/Fig3B_log2fc_1p5_edges.csv",
+    frozen_layout_file = "/path/to/diabetes_redesign_nodes.csv",
+    pathway_file = "/path/to/gsea_all_results.csv", # NULL disables pathway plot
+    output_dir = "/path/to/network_views_output",
+    condition = "Diabetes",
+    gene = "HLA-E",
+    pathway = "HALLMARK_OXIDATIVE_PHOSPHORYLATION",
+    subnetwork = list(
+      mode = "ego",
+      center_node = "SH_IN_10_ESR1",
+      order = 1L,
+      edge_mode = "induced"
+    ),
+    local_layout = "frozen", # or "compact"
+    padj_cutoff = 0.05,
+    abs_log2fc_cutoff = log2(1.5),
+    jaccard_cutoff = 0.10,
+    layout_id = "log2fc_1p5_community_first_v1",
+    layout_seed = 42L,
+    overwrite = FALSE
+  )
+}
 
 suppressPackageStartupMessages(library(HyBsNet))
 
-project_root <- normalizePath(network_view_config$project_root, mustWork = TRUE)
 condition_slug <- tolower(network_view_config$condition)
-workflow_root <- file.path(
-  project_root,
-  "manual_rebuild",
-  "Fig3_network_log2fc_1p5"
-)
-source_data_dir <- file.path(workflow_root, "outputs", "source_data")
-redesign_dir <- file.path(workflow_root, "visual_redesign", "outputs")
-output_dir <- if (is.null(network_view_config$output_dir)) {
-  file.path(workflow_root, "network_views_v1", condition_slug)
-} else {
-  network_view_config$output_dir
+required_file <- function(path, setting) {
+  if (is.null(path) || length(path) != 1L || is.na(path) || !nzchar(path)) {
+    stop("Missing path in network_view_config$", setting, call. = FALSE)
+  }
+  if (!file.exists(path)) {
+    stop("Input file does not exist: ", path, call. = FALSE)
+  }
+  normalizePath(path, mustWork = TRUE)
 }
+deg_path <- required_file(network_view_config$deg_file, "deg_file")
+edge_path <- required_file(network_view_config$edge_file, "edge_file")
+frozen_node_path <- required_file(
+  network_view_config$frozen_layout_file,
+  "frozen_layout_file"
+)
+if (is.null(network_view_config$output_dir) ||
+    !nzchar(network_view_config$output_dir)) {
+  stop("Set network_view_config$output_dir explicitly.", call. = FALSE)
+}
+output_dir <- normalizePath(network_view_config$output_dir, mustWork = FALSE)
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
-
-deg_path <- file.path(
-  project_root,
-  "results", "current", "01_differential_expression", "MAST_deg_summary.csv"
-)
-gsea_path <- file.path(dirname(project_root), "Macaque_HyBs_GSEA", "gsea_all_results.csv")
-edge_path <- file.path(
-  source_data_dir,
-  paste0(network_view_config$panel, "_log2fc_1p5_edges.csv")
-)
-frozen_node_path <- file.path(
-  redesign_dir,
-  paste0(condition_slug, "_redesign_nodes.csv")
-)
 
 deg_raw <- read_hybs_csv(
   deg_path,
@@ -154,6 +151,10 @@ subnetwork_context_plot <- plot_subnetwork_context(
 pathway_overlay <- NULL
 pathway_plot <- NULL
 if (!is.null(network_view_config$pathway) && nzchar(network_view_config$pathway)) {
+  gsea_path <- required_file(
+    network_view_config$pathway_file,
+    "pathway_file"
+  )
   gsea_data <- read_hybs_csv(
     gsea_path,
     c("group", "nuclei", "cluster", "pathway", "NES", "padj")
